@@ -1,72 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Training Selector</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    select {
-      padding: 8px;
-      margin: 5px;
-    }
+<meta charset="UTF-8">
+<title>Training Selector</title>
 
-     button {
-     padding: 8px 15px;
-    margin: 5px;
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+
+  h2 {
+    margin-bottom: 15px;
+  }
+
+  /* Layout container */
+  .wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+  }
+
+  select {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 2px solid #ccc;
+    font-size: 14px;
+    min-width: 220px;
+    accent-color: #b91e71;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: #b91e71;
+    box-shadow: 0 0 5px rgba(185, 30, 113, 0.4);
+  }
+
+  button {
+    padding: 8px 15px;
+    margin-top: 10px;
     background-color: #b91e71;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    }
-  </style>
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  /* Logo styling */
+  .logo {
+    max-height: 80px;
+  }
+
+</style>
 </head>
+
 <body>
 
-  <h2>Select your role</h2>
+<h2>Select your role</h2>
 
-  <select id="roleSelect">
-    <option value="">Loading roles…</option>
-  </select>
+<div class="wrapper">
 
-  <br><br>
+  <div class="controls">
+    <select id="roleSelect">
+      <option value="">Loading roles…</option>
+    </select>
 
-  <button onclick="goToTraining()">Go to training</button>
+    <button onclick="goToTraining()">Go to training</button>
+  </div>
 
-  <script>
-    let roles = [];
+  <!-- Replace with your logo file -->
+  <img src="logo.png" class="logo" alt="Organisation Logo">
 
-    fetch('roles.csv')
-      .then(response => response.text())
-      .then(text => {
-        const rows = text.split('\n').slice(1);
-        const select = document.getElementById('roleSelect');
+</div>
 
-        select.innerHTML = '<option value="">-- Choose a role --</option>';
+<script>
+  fetch('roles.csv')
+    .then(response => response.text())
+    .then(text => {
+      const rows = text.split('\n').slice(1);
+      const select = document.getElementById('roleSelect');
 
-        rows.forEach(row => {
-          const cols = row.split(',');
-          if (cols.length >= 3) {
-            const option = document.createElement('option');
-            option.value = cols[2].trim();
-            option.textContent = cols[1].trim();
-            select.appendChild(option);
-          }
-        });
+      select.innerHTML = '<option value="">-- Choose a role --</option>';
+
+      rows.forEach(row => {
+        const cols = row.split(',');
+        if (cols.length >= 3) {
+          const option = document.createElement('option');
+          option.value = cols[2].trim();
+          option.textContent = cols[1].trim();
+          select.appendChild(option);
+        }
       });
+    });
 
-    function goToTraining() {
-      const url = document.getElementById('roleSelect').value;
-      if (!url) {
-        alert('Please select a role');
-        return;
-      }
-      window.open(url, '_blank');
+  function goToTraining() {
+    const url = document.getElementById('roleSelect').value;
+    if (!url) {
+      alert('Please select a role');
+      return;
     }
-  </script>
+    window.open(url, '_blank');
+  }
+</script>
 
 </body>
 </html>
