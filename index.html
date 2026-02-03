@@ -17,7 +17,6 @@
     justify-content: flex-start;
   }
 
-  /* Layout container */
   .wrapper {
     display: flex;
     align-items: center;
@@ -62,11 +61,9 @@
     opacity: 0.9;
   }
 
-  /* Logo styling */
   .logo {
     max-height: 80px;
   }
-
 </style>
 </head>
 
@@ -77,46 +74,90 @@
 <div class="wrapper">
 
   <div class="controls">
-    <select id="roleSelect">
-      <option value="">Loading roles…</option>
+
+    <!-- Department selector -->
+    <select id="departmentSelect">
+      <option value="">Loading departments…</option>
+    </select>
+
+    <!-- Role selector -->
+    <select id="roleSelect" disabled>
+      <option value="">Select department first</option>
     </select>
 
     <button onclick="goToTraining()">Go to training</button>
+
   </div>
 
-  
   <img src="logo.png" class="logo" alt="Digital Learning team logo">
 
 </div>
 
 <script>
-  fetch('roles.csv')
-    .then(response => response.text())
-    .then(text => {
-      const rows = text.split('\n').slice(1);
-      const select = document.getElementById('roleSelect');
+let rolesData = [];
 
-      select.innerHTML = '<option value="">-- Choose a role --</option>';
+fetch('roles.csv')
+  .then(response => response.text())
+  .then(text => {
 
-      rows.forEach(row => {
-        const cols = row.split(',');
-        if (cols.length >= 3) {
-          const option = document.createElement('option');
-          option.value = cols[2].trim();
-          option.textContent = cols[1].trim();
-          select.appendChild(option);
-        }
-      });
+    const rows = text.trim().split('\n').slice(1);
+
+    rolesData = rows.map(row => {
+      const cols = row.split(',');
+      return {
+        department: cols[0].trim(),
+        role: cols[1].trim(),
+        url: cols[2].trim()
+      };
     });
 
-  function goToTraining() {
-    const url = document.getElementById('roleSelect').value;
-    if (!url) {
-      alert('Please select a role');
-      return;
-    }
-    window.open(url, '_blank');
+    populateDepartments();
+  });
+
+function populateDepartments() {
+  const deptSelect = document.getElementById('departmentSelect');
+
+  const departments = [...new Set(rolesData.map(r => r.department))];
+
+  deptSelect.innerHTML = '<option value="">-- Choose department --</option>';
+
+  departments.forEach(dept => {
+    const option = document.createElement('option');
+    option.value = dept;
+    option.textContent = dept;
+    deptSelect.appendChild(option);
+  });
+}
+
+document.getElementById('departmentSelect').addEventListener('change', function() {
+
+  const selectedDept = this.value;
+  const roleSelect = document.getElementById('roleSelect');
+
+  roleSelect.innerHTML = '<option value="">-- Choose role --</option>';
+  roleSelect.disabled = !selectedDept;
+
+  const filteredRoles = rolesData.filter(r => r.department === selectedDept);
+
+  filteredRoles.forEach(r => {
+    const option = document.createElement('option');
+    option.value = r.url;
+    option.textContent = r.role;
+    roleSelect.appendChild(option);
+  });
+
+});
+
+function goToTraining() {
+  const url = document.getElementById('roleSelect').value;
+
+  if (!url) {
+    alert('Please select a role');
+    return;
   }
+
+  window.open(url, '_blank');
+}
 </script>
 
 </body>
