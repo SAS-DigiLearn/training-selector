@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Training Selector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    select, button {
+      padding: 8px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Select your role</h2>
+
+  <select id="roleSelect">
+    <option value="">Loading roles…</option>
+  </select>
+
+  <br><br>
+
+  <button onclick="goToTraining()">Go to training</button>
+
+  <script>
+    let roles = [];
+
+    fetch('roles.csv')
+      .then(response => response.text())
+      .then(text => {
+        const rows = text.split('\n').slice(1);
+        const select = document.getElementById('roleSelect');
+
+        select.innerHTML = '<option value="">-- Choose a role --</option>';
+
+        rows.forEach(row => {
+          const cols = row.split(',');
+          if (cols.length >= 3) {
+            const option = document.createElement('option');
+            option.value = cols[2].trim();
+            option.textContent = cols[1].trim();
+            select.appendChild(option);
+          }
+        });
+      });
+
+    function goToTraining() {
+      const url = document.getElementById('roleSelect').value;
+      if (!url) {
+        alert('Please select a role');
+        return;
+      }
+      window.open(url, '_blank');
+    }
+  </script>
+
+</body>
+</html>
