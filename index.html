@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SAS Training Selector</title>
+<title>SAS Learning Site Selector</title>
 
 <style>
   body {
@@ -50,13 +50,13 @@
     outline: none;
   }
 
-  .courses {
+  .sites {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
   }
 
-  .course-card {
+  .site-card {
     background: white;
     padding: 18px;
     border-radius: 14px;
@@ -66,7 +66,7 @@
     justify-content: space-between;
   }
 
-  .course-title {
+  .site-title {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -111,7 +111,7 @@
 
 <body>
 
-<header>SAS Training Dashboard</header>
+<header>SAS Learning Sites Dashboard</header>
 
 <div class="container">
 
@@ -127,15 +127,15 @@
 
   </div>
 
-  <button class="launch-all" id="launchAllBtn" style="display:none;">Launch All Courses</button>
+  <button class="launch-all" id="launchAllBtn" style="display:none;">Open All Learning Sites</button>
 
-  <div class="courses" id="courseList"></div>
+  <div class="sites" id="siteList"></div>
 
 </div>
 
 <script>
 let rolesData = [];
-let currentCourses = [];
+let currentSites = [];
 
 fetch('roles.csv')
   .then(response => response.text())
@@ -148,7 +148,7 @@ fetch('roles.csv')
       return {
         department: cols[0].trim(),
         role: cols[1].trim(),
-        course: cols[2].trim(),
+        site: cols[2].trim(),
         type: cols[3].trim(),
         url: cols[4].trim()
       };
@@ -176,11 +176,11 @@ document.getElementById('departmentSelect').addEventListener('change', function(
 
   const selectedDept = this.value;
   const roleSelect = document.getElementById('roleSelect');
-  const courseList = document.getElementById('courseList');
+  const siteList = document.getElementById('siteList');
 
   roleSelect.innerHTML = '<option value="">-- Choose role --</option>';
   roleSelect.disabled = !selectedDept;
-  courseList.innerHTML = '';
+  siteList.innerHTML = '';
   document.getElementById('launchAllBtn').style.display = 'none';
 
   const filteredRoles = rolesData.filter(r => r.department === selectedDept);
@@ -200,42 +200,42 @@ document.getElementById('roleSelect').addEventListener('change', function () {
   const selectedDept = document.getElementById('departmentSelect').value;
   const selectedRole = this.value;
 
-  const courseList = document.getElementById('courseList');
+  const siteList = document.getElementById('siteList');
   const launchAllBtn = document.getElementById('launchAllBtn');
 
-  courseList.innerHTML = '';
+  siteList.innerHTML = '';
 
-  currentCourses = rolesData.filter(r =>
+  currentSites = rolesData.filter(r =>
     r.department === selectedDept &&
     r.role === selectedRole
   );
 
-  if (currentCourses.length > 0) {
+  if (currentSites.length > 0) {
     launchAllBtn.style.display = 'inline-block';
   } else {
     launchAllBtn.style.display = 'none';
   }
 
-  currentCourses.forEach(c => {
+  currentSites.forEach(s => {
 
     const card = document.createElement('div');
-    card.className = 'course-card';
+    card.className = 'site-card';
 
     card.innerHTML = `
       <div>
-        <div class="course-title">${c.course}</div>
-        <span class="badge ${c.type.toLowerCase()}">${c.type}</span>
+        <div class="site-title">${s.site}</div>
+        <span class="badge ${s.type.toLowerCase()}">${s.type}</span>
       </div>
-      <button onclick="window.open('${c.url}','_blank')">Launch Course</button>
+      <button onclick="window.open('${s.url}','_blank')">Open Learning Site</button>
     `;
 
-    courseList.appendChild(card);
+    siteList.appendChild(card);
   });
 });
 
 
 document.getElementById('launchAllBtn').addEventListener('click', function() {
-  currentCourses.forEach(c => window.open(c.url, '_blank'));
+  currentSites.forEach(s => window.open(s.url, '_blank'));
 });
 
 </script>
