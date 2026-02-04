@@ -7,94 +7,135 @@
 <style>
   body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f5f6fa;
+  }
+
+  header {
+    background: #b91e71;
+    color: white;
     padding: 20px;
+    font-size: 22px;
+    font-weight: bold;
   }
 
-  h2 {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+  .container {
+    padding: 25px;
+    max-width: 1100px;
+    margin: auto;
   }
 
-  .wrapper {
+  .selectors {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
     display: flex;
-    align-items: stretch;
-    gap: 40px;
-    flex-direction: row;
-    justify-content: flex-start;
-  }
-
-  .controls {
-    display: flex;
-    flex-direction: column;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   select {
-    padding: 8px;
-    margin: 5px 0;
-    border-radius: 5px;
-    border: 2px solid #ccc;
-    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
     min-width: 220px;
-    accent-color: #b91e71;
+    font-size: 14px;
   }
 
   select:focus {
-    outline: none;
     border-color: #b91e71;
-    box-shadow: 0 0 5px rgba(185, 30, 113, 0.4);
+    outline: none;
+  }
+
+  .courses {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .course-card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .course-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .required {
+    background: #ffe5f2;
+    color: #b91e71;
+  }
+
+  .optional {
+    background: #e8f4ff;
+    color: #1677c7;
   }
 
   button {
-    padding: 8px 15px;
-    margin-top: 10px;
-    background-color: #b91e71;
+    background: #b91e71;
     color: white;
     border: none;
-    border-radius: 5px;
+    padding: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    width:60%;
   }
 
   button:hover {
     opacity: 0.9;
   }
 
-  .logo {
-    max-height: 95px;
+  .launch-all {
+    margin-bottom: 20px;
   }
 </style>
 </head>
 
 <body>
 
-<h2>SAS Training Selector</h2>
+<header>SAS Training Dashboard</header>
 
-<div class="wrapper">
+<div class="container">
 
-  <div class="controls">
+  <div class="selectors">
 
-    <!-- Department -->
     <select id="departmentSelect">
       <option value="">Loading departments…</option>
     </select>
 
-    <!-- Role -->
     <select id="roleSelect" disabled>
       <option value="">Select department first</option>
     </select>
 
-    <button onclick="goToTraining()">Go to training</button>
-
   </div>
 
-  <img src="logo.png" class="logo" alt="Digital Learning team logo">
+  <button class="launch-all" id="launchAllBtn" style="display:none;">Launch All Courses</button>
+
+  <div class="courses" id="courseList"></div>
 
 </div>
 
 <script>
 let rolesData = [];
+let currentCourses = [];
 
 fetch('roles.csv')
   .then(response => response.text())
@@ -107,7 +148,9 @@ fetch('roles.csv')
       return {
         department: cols[0].trim(),
         role: cols[1].trim(),
-        url: cols[2].trim()
+        course: cols[2].trim(),
+        type: cols[3].trim(),
+        url: cols[4].trim()
       };
     });
 
@@ -133,31 +176,68 @@ document.getElementById('departmentSelect').addEventListener('change', function(
 
   const selectedDept = this.value;
   const roleSelect = document.getElementById('roleSelect');
+  const courseList = document.getElementById('courseList');
 
   roleSelect.innerHTML = '<option value="">-- Choose role --</option>';
   roleSelect.disabled = !selectedDept;
+  courseList.innerHTML = '';
+  document.getElementById('launchAllBtn').style.display = 'none';
 
   const filteredRoles = rolesData.filter(r => r.department === selectedDept);
+  const uniqueRoles = [...new Set(filteredRoles.map(r => r.role))];
 
-  filteredRoles.forEach(r => {
+  uniqueRoles.forEach(role => {
     const option = document.createElement('option');
-    option.value = r.url;
-    option.textContent = r.role;
+    option.value = role;
+    option.textContent = role;
     roleSelect.appendChild(option);
   });
 
 });
 
-function goToTraining() {
-  const url = document.getElementById('roleSelect').value;
+document.getElementById('roleSelect').addEventListener('change', function () {
 
-  if (!url) {
-    alert('Please select a role');
-    return;
+  const selectedDept = document.getElementById('departmentSelect').value;
+  const selectedRole = this.value;
+
+  const courseList = document.getElementById('courseList');
+  const launchAllBtn = document.getElementById('launchAllBtn');
+
+  courseList.innerHTML = '';
+
+  currentCourses = rolesData.filter(r =>
+    r.department === selectedDept &&
+    r.role === selectedRole
+  );
+
+  if (currentCourses.length > 0) {
+    launchAllBtn.style.display = 'inline-block';
+  } else {
+    launchAllBtn.style.display = 'none';
   }
 
-  window.open(url, '_blank');
-}
+  currentCourses.forEach(c => {
+
+    const card = document.createElement('div');
+    card.className = 'course-card';
+
+    card.innerHTML = `
+      <div>
+        <div class="course-title">${c.course}</div>
+        <span class="badge ${c.type.toLowerCase()}">${c.type}</span>
+      </div>
+      <button onclick="window.open('${c.url}','_blank')">Launch Course</button>
+    `;
+
+    courseList.appendChild(card);
+  });
+});
+
+
+document.getElementById('launchAllBtn').addEventListener('click', function() {
+  currentCourses.forEach(c => window.open(c.url, '_blank'));
+});
+
 </script>
 
 </body>
