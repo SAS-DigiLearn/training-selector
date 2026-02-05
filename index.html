@@ -11,13 +11,23 @@
     background: #f5f6fa;
   }
 
-  header {
-    background: #b91e71;
-    color: white;
-    padding: 20px;
-    font-size: 22px;
-    font-weight: bold;
-  }
+ header {
+  background: #b91e71;
+  color: white;
+  padding: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  height: 40px;     
+  width: auto;
+   margin-left: 20px;
+}
+
 
   .container {
     padding: 25px;
@@ -111,7 +121,11 @@
 
 <body>
 
-<header>SAS Learning Site Selector</header>
+<header>
+  <span class="title">SAS Learning Site Selector</span>
+  <img src="logo.png" alt="Logo" class="header-logo">
+</header>
+
 
 <div class="container">
 
